@@ -8,12 +8,14 @@ from fastapi.responses import JSONResponse
 
 from app import health
 from app.config import get_settings
-from app.errors import ConflictError, DomainError, NotFoundError
+from app.errors import ConflictError, DomainError, InvalidReferenceError, NotFoundError
+from app.invoices.router import router as invoices_router
 from app.suppliers.router import router as suppliers_router
 
 _DOMAIN_ERROR_STATUS: dict[type[DomainError], int] = {
     NotFoundError: status.HTTP_404_NOT_FOUND,
     ConflictError: status.HTTP_409_CONFLICT,
+    InvalidReferenceError: status.HTTP_422_UNPROCESSABLE_CONTENT,
 }
 
 
@@ -29,10 +31,10 @@ def _domain_error_handler(request: Request, exc: Exception) -> JSONResponse:
     if not isinstance(exc, DomainError):  # registered for DomainError only
         raise exc
     status_code = _DOMAIN_ERROR_STATUS.get(type(exc), status.HTTP_400_BAD_REQUEST)
-    return JSONResponse(
-        status_code=status_code,
-        content={"error": {"code": exc.code, "message": exc.message}},
-    )
+    error: dict[str, Any] = {"code": exc.code, "message": exc.message}
+    if exc.details:
+        error["details"] = exc.details
+    return JSONResponse(status_code=status_code, content={"error": error})
 
 
 def _validation_error_handler(request: Request, exc: Exception) -> JSONResponse:
@@ -52,6 +54,7 @@ def create_app() -> FastAPI:
     app.add_exception_handler(RequestValidationError, _validation_error_handler)
     app.include_router(health.router)
     app.include_router(suppliers_router, prefix="/api/v1")
+    app.include_router(invoices_router, prefix="/api/v1")
     return app
 
 

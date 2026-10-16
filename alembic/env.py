@@ -4,6 +4,7 @@ from alembic import context
 from sqlalchemy import create_engine, pool
 
 # Import every feature's models so autogenerate sees their tables.
+import app.invoices.models  # noqa: F401
 import app.suppliers.models  # noqa: F401
 from app.config import get_settings
 from app.db import Base

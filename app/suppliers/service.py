@@ -3,6 +3,7 @@ import uuid
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.db import violated_constraint
 from app.errors import ConflictError, NotFoundError
 from app.suppliers.models import Supplier
 from app.suppliers.schemas import SupplierCreate
@@ -20,7 +21,7 @@ def create_supplier(db: Session, data: SupplierCreate) -> Supplier:
         db.rollback()
         # Rely on the database constraint, not a prior SELECT, so concurrent
         # requests with the same tax_id cannot both succeed.
-        if _violated_constraint(exc) == TAX_ID_UNIQUE_CONSTRAINT:
+        if violated_constraint(exc) == TAX_ID_UNIQUE_CONSTRAINT:
             raise ConflictError(
                 "supplier_tax_id_conflict", "A supplier with this tax_id already exists."
             ) from exc
@@ -33,8 +34,3 @@ def get_supplier(db: Session, supplier_id: uuid.UUID) -> Supplier:
     if supplier is None:
         raise NotFoundError("supplier_not_found", f"Supplier {supplier_id} was not found.")
     return supplier
-
-
-def _violated_constraint(exc: IntegrityError) -> str | None:
-    diag = getattr(exc.orig, "diag", None)
-    return getattr(diag, "constraint_name", None)

@@ -1,6 +1,7 @@
 from collections.abc import Iterator
 
 from sqlalchemy import MetaData, create_engine
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.config import get_settings
@@ -36,3 +37,9 @@ def get_db() -> Iterator[Session]:
     """FastAPI dependency yielding one session per request."""
     with SessionLocal() as session:
         yield session
+
+
+def violated_constraint(exc: IntegrityError) -> str | None:
+    """Name of the PostgreSQL constraint behind an IntegrityError, if reported."""
+    diag = getattr(exc.orig, "diag", None)
+    return getattr(diag, "constraint_name", None)
