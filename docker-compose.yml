@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: financeflow-postgres
+    environment:
+      POSTGRES_USER: financeflow
+      POSTGRES_PASSWORD: financeflow  # local development only; synthetic data
+      POSTGRES_DB: financeflow
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      # Runs only on first start (empty volume): creates the test database.
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U financeflow -d financeflow"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres-data:
