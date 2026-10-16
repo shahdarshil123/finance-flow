@@ -87,8 +87,10 @@ def db_session(db_engine: Engine) -> Iterator[Session]:
 def make_supplier(db_session: Session) -> Callable[..., Supplier]:
     """Factory creating synthetic suppliers through the real service."""
 
-    def _make(name: str = "ACME Test Supplier") -> Supplier:
-        return create_supplier(db_session, SupplierCreate(name=name))
+    def _make(name: str = "ACME Test Supplier", external_erp_id: str | None = None) -> Supplier:
+        return create_supplier(
+            db_session, SupplierCreate(name=name, external_erp_id=external_erp_id)
+        )
 
     return _make
 

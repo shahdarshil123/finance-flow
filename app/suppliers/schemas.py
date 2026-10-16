@@ -4,6 +4,7 @@ from typing import Annotated
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, EmailStr, Field, StringConstraints
 
+from app.suppliers.models import EXTERNAL_ERP_ID_MAX_LENGTH
 from app.validation import reject_unsupported_characters
 
 TAX_ID_MAX_LENGTH = 50  # matches suppliers.tax_id VARCHAR(50)
@@ -42,6 +43,17 @@ TaxId = Annotated[
         ),
     ),
 ]
+ExternalErpId = Annotated[
+    str,
+    StringConstraints(strip_whitespace=True, min_length=1, max_length=EXTERNAL_ERP_ID_MAX_LENGTH),
+    AfterValidator(reject_unsupported_characters),
+    Field(
+        description=(
+            "Supplier identifier in the external ERP, e.g. ERP-SUP-001. Trimmed; case is "
+            "preserved because ERP identifiers are opaque. Unique across suppliers."
+        ),
+    ),
+]
 
 
 class SupplierCreate(BaseModel):
@@ -50,6 +62,7 @@ class SupplierCreate(BaseModel):
     name: SupplierName
     tax_id: TaxId | None = None
     email: EmailStr | None = None
+    external_erp_id: ExternalErpId | None = None
 
 
 class SupplierRead(BaseModel):
@@ -59,5 +72,6 @@ class SupplierRead(BaseModel):
     name: str
     tax_id: str | None
     email: str | None
+    external_erp_id: str | None
     created_at: datetime
     updated_at: datetime

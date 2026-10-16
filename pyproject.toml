@@ -7,6 +7,7 @@ dependencies = [
     "alembic>=1.13",
     "email-validator>=2.1",
     "fastapi>=0.115",
+    "httpx>=0.27",
     "psycopg[binary]>=3.2",
     "pydantic-settings>=2.4",
     "sqlalchemy>=2.0",
@@ -15,7 +16,6 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "httpx>=0.27",
     "pyright>=1.1.400",
     "pytest>=8",
     "ruff>=0.15",
@@ -32,18 +32,18 @@ markers = [
 [tool.ruff]
 target-version = "py312"
 line-length = 100
-src = ["app", "tests"]
+src = ["app", "mock_erp", "tests"]
 
 [tool.ruff.lint]
 # pycodestyle, pyflakes, isort, bugbear, pyupgrade
 select = ["E", "W", "F", "I", "B", "UP"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["app", "tests"]
+known-first-party = ["app", "mock_erp", "tests"]
 
 [tool.pyright]
 pythonVersion = "3.12"
-include = ["app", "tests", "alembic"]
+include = ["app", "mock_erp", "tests", "alembic"]
 venvPath = "."
 venv = ".venv"
 typeCheckingMode = "standard"

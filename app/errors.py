@@ -19,3 +19,15 @@ class ConflictError(DomainError):
 
 class InvalidReferenceError(DomainError):
     """A request refers to another entity (e.g. a supplier) that does not exist."""
+
+
+class InvalidStateError(DomainError):
+    """The entity exists but lacks what the operation needs (e.g. a PO reference)."""
+
+
+class UpstreamError(DomainError):
+    """An external system (e.g. the ERP) returned an invalid or rejected response."""
+
+
+class UpstreamUnavailableError(DomainError):
+    """An external system could not be reached or kept failing transiently."""

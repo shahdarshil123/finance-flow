@@ -8,7 +8,15 @@ from fastapi.responses import JSONResponse
 
 from app import health
 from app.config import get_settings
-from app.errors import ConflictError, DomainError, InvalidReferenceError, NotFoundError
+from app.errors import (
+    ConflictError,
+    DomainError,
+    InvalidReferenceError,
+    InvalidStateError,
+    NotFoundError,
+    UpstreamError,
+    UpstreamUnavailableError,
+)
 from app.invoices.router import router as invoices_router
 from app.suppliers.router import router as suppliers_router
 
@@ -16,6 +24,9 @@ _DOMAIN_ERROR_STATUS: dict[type[DomainError], int] = {
     NotFoundError: status.HTTP_404_NOT_FOUND,
     ConflictError: status.HTTP_409_CONFLICT,
     InvalidReferenceError: status.HTTP_422_UNPROCESSABLE_CONTENT,
+    InvalidStateError: status.HTTP_422_UNPROCESSABLE_CONTENT,
+    UpstreamError: status.HTTP_502_BAD_GATEWAY,
+    UpstreamUnavailableError: status.HTTP_503_SERVICE_UNAVAILABLE,
 }
 
 
