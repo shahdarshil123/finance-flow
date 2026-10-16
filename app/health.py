@@ -24,10 +24,10 @@ def readiness(db: Annotated[Session, Depends(get_db)]) -> dict[str, str]:
     """Process can serve traffic: the database accepts queries."""
     try:
         db.execute(text("SELECT 1"))
-    except SQLAlchemyError:
+    except SQLAlchemyError as exc:
         logger.exception("Readiness check failed: database unavailable")
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="database unavailable",
-        )
+        ) from exc
     return {"status": "ok", "database": "ok"}
